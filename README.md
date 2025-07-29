@@ -10,6 +10,8 @@ how do I clone for the root folder so it does not create a new folder:
 git clone https://github.com/gatling/gatling-maven-plugin-demo-kotlin.git
 ```
 
+Link para extrair o texto do repositório e usar em LLM
+
 https://uithub.com/VictorBarretoLF/gatling-maven-with-kotlin
 
 ## Run the tests
