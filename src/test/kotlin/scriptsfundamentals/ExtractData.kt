@@ -6,7 +6,7 @@ import io.gatling.javaapi.http.HttpDsl
 import io.gatling.javaapi.http.HttpProtocolBuilder
 import java.time.Duration
 
-class VideoGameDBExtractData: Simulation() {
+class ExtractData: Simulation() {
 
     private val BASE_URL = "https://www.videogamedb.uk/api"
     private val DEFAULT_HEADER = "application/json"
@@ -31,7 +31,6 @@ class VideoGameDBExtractData: Simulation() {
             .check(HttpDsl.status().not(404), HttpDsl.status().not(500))
             .check(CoreDsl.jmesPath("[1].id").saveAs("gameId"))
         )
-        .pause(Duration.ofMillis(4000))
 
         .exec(HttpDsl.http("Get specific game with Id - #{gameId}")
             .get("/videogame/#{gameId}")
