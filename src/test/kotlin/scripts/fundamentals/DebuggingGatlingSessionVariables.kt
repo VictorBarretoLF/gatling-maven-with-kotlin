@@ -1,4 +1,4 @@
-package scriptsfundamentals
+package scripts.fundamentals
 
 import io.gatling.javaapi.core.CoreDsl
 import io.gatling.javaapi.core.Simulation
@@ -6,7 +6,7 @@ import io.gatling.javaapi.http.HttpDsl
 import io.gatling.javaapi.http.HttpProtocolBuilder
 import java.time.Duration
 
-class ExtractData: Simulation() {
+class DebuggingGatlingSessionVariables: Simulation() {
 
     private val BASE_URL = "https://www.videogamedb.uk/api"
     private val DEFAULT_HEADER = "application/json"
@@ -24,7 +24,6 @@ class ExtractData: Simulation() {
             .check(HttpDsl.status().within(200, 201, 202))
             .check(CoreDsl.jmesPath("name").shouldBe("Resident Evil 4"))
         )
-        .pause(1, 10)
 
         .exec(HttpDsl.http("Get All Video Games")
             .get("/videogame")
@@ -32,11 +31,23 @@ class ExtractData: Simulation() {
             .check(CoreDsl.jmesPath("[1].id").saveAs("gameId"))
         )
 
+        .exec{ session ->
+            println("SESSION HERE: $session")
+            println("game set to: ${session.getString("gameId")}")
+
+            session
+        }
+
         .exec(HttpDsl.http("Get specific game with Id - #{gameId}")
             .get("/videogame/#{gameId}")
             .check(HttpDsl.status().shouldBe(200))
             .check(CoreDsl.jmesPath("name").shouldBe("Gran Turismo 3"))
+            .check(CoreDsl.bodyString().saveAs("responseBody"))
         )
+        .exec { session ->
+            println("RESPONSE BODY: ${session.getString("responseBody")}")
+            session
+        }
 
     // Step 3: Load simulation
     init {

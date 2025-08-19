@@ -1,4 +1,4 @@
-package scriptsfundamentals
+package scripts.fundamentals
 
 import io.gatling.javaapi.core.CoreDsl
 import io.gatling.javaapi.core.Simulation
@@ -6,7 +6,7 @@ import io.gatling.javaapi.http.HttpDsl
 import io.gatling.javaapi.http.HttpProtocolBuilder
 import java.time.Duration
 
-class DebuggingGatlingSessionVariables: Simulation() {
+class VideoGameDBJMESPath: Simulation() {
 
     private val BASE_URL = "https://www.videogamedb.uk/api"
     private val DEFAULT_HEADER = "application/json"
@@ -19,35 +19,24 @@ class DebuggingGatlingSessionVariables: Simulation() {
     // Step 2: Define the scenario
     private val scenario = CoreDsl.scenario("Video Game DB - Section 5 code")
 
+        .exec(HttpDsl.http("Get All Video Games - 1st call")
+            .get("/videogame")
+            .check(HttpDsl.status().shouldBe(200))
+            .check(CoreDsl.jmesPath("[? id == `1`].name").ofList().shouldBe(listOf("Resident Evil 4")))
+        )
+        .pause(5)
+
         .exec(HttpDsl.http("Get specific Game")
             .get("/videogame/1")
-            .check(HttpDsl.status().within(200, 201, 202))
-            .check(CoreDsl.jmesPath("name").shouldBe("Resident Evil 4"))
+            .check(HttpDsl.status().within(200, 404))
         )
+        .pause(1, 10)
 
-        .exec(HttpDsl.http("Get All Video Games")
+        .exec(HttpDsl.http("Get All Video Games - 2st call")
             .get("/videogame")
             .check(HttpDsl.status().not(404), HttpDsl.status().not(500))
-            .check(CoreDsl.jmesPath("[1].id").saveAs("gameId"))
         )
-
-        .exec{ session ->
-            println("SESSION HERE: $session")
-            println("game set to: ${session.getString("gameId")}")
-
-            session
-        }
-
-        .exec(HttpDsl.http("Get specific game with Id - #{gameId}")
-            .get("/videogame/#{gameId}")
-            .check(HttpDsl.status().shouldBe(200))
-            .check(CoreDsl.jmesPath("name").shouldBe("Gran Turismo 3"))
-            .check(CoreDsl.bodyString().saveAs("responseBody"))
-        )
-        .exec { session ->
-            println("RESPONSE BODY: ${session.getString("responseBody")}")
-            session
-        }
+        .pause(Duration.ofMillis(4000))
 
     // Step 3: Load simulation
     init {

@@ -1,4 +1,4 @@
-package scriptsfundamentals
+package scripts.fundamentals
 
 import io.gatling.javaapi.core.CoreDsl
 import io.gatling.javaapi.core.Simulation
@@ -6,7 +6,7 @@ import io.gatling.javaapi.http.HttpDsl
 import io.gatling.javaapi.http.HttpProtocolBuilder
 import java.time.Duration
 
-class VideoGameDBJMESPath: Simulation() {
+class VideoGameDB: Simulation() {
 
     private val BASE_URL = "https://www.videogamedb.uk/api"
     private val DEFAULT_HEADER = "application/json"
@@ -22,7 +22,7 @@ class VideoGameDBJMESPath: Simulation() {
         .exec(HttpDsl.http("Get All Video Games - 1st call")
             .get("/videogame")
             .check(HttpDsl.status().shouldBe(200))
-            .check(CoreDsl.jmesPath("[? id == `1`].name").ofList().shouldBe(listOf("Resident Evil 4")))
+            .check(CoreDsl.jsonPath("$[?(@.id==1)].name").shouldBe("Resident Evil 4"))
         )
         .pause(5)
 
